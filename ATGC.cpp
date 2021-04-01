@@ -26,15 +26,18 @@ std::string generate_dna(int N) {
 
 }
 
-void find(int i, std::string& chain, std::string fragment, std::vector<int> indexes) {
+void find(int i, std::vector<std::string> sub_chains, std::string fragment, std::vector<int> &indexes) {
 
 	std::mutex m_mutex;
 	const std::lock_guard<std::mutex> lock(m_mutex);
 
-	int t = chain.size() / 8 * (i - 1);
+	int t = 0;
 
-	while (t <= (chain.size() / 8 * (i) - 1) ){
-		indexes.push_back(chain.find(fragment, t));
+	while (t <= (sub_chains[i].size()) ){
+
+		if (sub_chains[i].find(fragment, t) != -1) {
+			indexes.push_back(sub_chains[i].find(fragment, t) + (sub_chains[0].size() - fragment.size() + 1)* (i));
+		}
 		t++;
 	}
 
@@ -45,8 +48,7 @@ std::vector <std::string> make_sub_chains(std::string chain, std::string fragmen
 	std::vector <std::string> sub;
 
 	for (int i = 0; i < threads_num; i++) {
-
-		sub[i] = chain.substr( 1/*chain.size()/threads_num * i */, chain.size() / threads_num + fragment.size() - 1);
+		sub.push_back( chain.substr(chain.size() / threads_num * i, chain.size() / threads_num + fragment.size() - 1));
 	}
 	return sub;
 }
@@ -64,24 +66,15 @@ std::vector<int> parallel_search(std::string& chain, std::string& fragment) {
 
 	std::vector<int> indexes;
 
-	/*std::vector < std::thread > threads;
+	std::vector < std::thread > threads;
 
 	for (std::size_t i = 1; i < threads_num; ++i)
 	{
-		threads.push_back(std::thread(find, std::ref(i), std::ref(chain), std::ref(fragment), std::ref(indexes)));
+		threads.push_back(std::thread(find, std::ref(i), std::ref(sub_chains), std::ref(fragment), std::ref(indexes)));
 	}
 
 	std::for_each(threads.begin(), threads.end(),
 		std::mem_fn(&std::thread::join));
-
-	*/
-	/*int t = 0;
-
-	while (t <= chain.size() ) {
-		indexes.push_back(chain.find(fragment, t));
-		t++;
-	}*/
-
 
 	std::sort(indexes.begin(), indexes.end());
 	indexes.erase(unique(indexes.begin(), indexes.end()), indexes.end());
@@ -98,25 +91,36 @@ void print(std::vector <T> vec) {
 	std::cout << "};" << std::endl;
 }
 
-
-int main() {
-
-	int N = 100;
-	int n = 5;
-//	std::string chain = generate_dna(N);
-//	std::string fragment = generate_dna(n);
+void test() {
 
 	std::string chain = "ACGTAGCGAAAACGAAAAGTCTGAA";
 	std::string fragment = "CGA";
 
-	std::cout << "chain: "<< chain << std::endl;
-	std::cout << "fragment: " << fragment << std::endl;
+	//std::cout << "chain: " << chain << std::endl;
+	//std::cout << "fragment: " << fragment << std::endl;
 
-	//std::cout << chain.find(fragment, 3);
-	
-	std::vector<std::string> sub_chains = make_sub_chains(chain, fragment,8);
+	//std::cout << chain.find(fragment, 1);
 
-	//print(parallel_search(chain, fragment));
+	//std::vector<std::string> sub_chains = make_sub_chains(chain, fragment, 8);
+	//print(sub_chains);
+
+
+	//std::vector<int> indexes;
+	//find(4, sub_chains, fragment, indexes);
+	//print(indexes);
+
+	print(parallel_search(chain, fragment));
+
+}
+int main() {
+
+	/*int N = 100;
+	int n = 5;
+	std::string chain = generate_dna(N);
+	std::string fragment = generate_dna(n);
+	print(parallel_search(chain, fragment));*/
+
+	test();
 
 	return 0;
 }
