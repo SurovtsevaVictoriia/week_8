@@ -7,6 +7,7 @@
 #include <functional>
 #include <mutex>
 
+std::mutex m_mutex;
 std::vector <char> nucleo{ 'A', 'T', 'G', 'C' };//all letters
 
 std::string generate_dna(int N) {//genenerates chain and fragment (works)
@@ -28,7 +29,6 @@ std::string generate_dna(int N) {//genenerates chain and fragment (works)
 //returns array of respective indexes of founs substrings (works)
 void find(int i, std::vector<std::string> sub_chains, std::string fragment, std::vector<int> &indexes) {
 
-	std::mutex m_mutex;
 	const std::lock_guard<std::mutex> lock(m_mutex);
 
 	int t = 0;
@@ -43,7 +43,7 @@ void find(int i, std::vector<std::string> sub_chains, std::string fragment, std:
 
 }
 
-//devides chain into (8)subchains with overlaps
+//devides chain into (8)subchains with overlaps (works)
 std::vector <std::string> make_sub_chains(std::string chain, std::string fragment,int threads_num) {
 
 	std::vector <std::string> sub;
@@ -69,18 +69,12 @@ std::vector<int> parallel_search(std::string& chain, std::string& fragment) {
 
 	std::vector < std::thread > threads;
 
-
-	//problems here
-	/*for (std::size_t i = 0; i < threads_num; ++i)
+	for (std::size_t i = 0; i < std::thread::hardware_concurrency(); ++i)
 	{
 		threads.push_back(std::thread(find, std::ref(i), std::ref(sub_chains), std::ref(fragment), std::ref(indexes)));
 		threads[i].join();
-	}*/
-
-	//sequential replacement (works):
-	for (int i = 0; i < threads_num; ++i) {
-		find(i, sub_chains, fragment, indexes);
 	}
+
 
 	std::sort(indexes.begin(), indexes.end());
 	indexes.erase(unique(indexes.begin(), indexes.end()), indexes.end());
@@ -88,6 +82,8 @@ std::vector<int> parallel_search(std::string& chain, std::string& fragment) {
 	return indexes;
 }
 
+
+//print vectors(works)
 template <typename T>
 void print(std::vector <T> vec) {
 	std::cout << '{';
@@ -97,6 +93,7 @@ void print(std::vector <T> vec) {
 	std::cout << "};" << std::endl;
 }
 
+//runs test 
 void test() {
 
 	std::string chain = "ACGTAGCGAAAACGAAAAGTCTGAA";
@@ -117,6 +114,7 @@ void test() {
 	print(parallel_search(chain, fragment));
 
 }
+
 int main() {
 
 	int N = 100;
