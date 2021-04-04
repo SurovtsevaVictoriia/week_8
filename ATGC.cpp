@@ -93,41 +93,27 @@ void print(std::vector <T> vec) {
 	std::cout << "};" << std::endl;
 }
 
-//runs test 
-void test() {
-
-	std::string chain = "ACGTAGCGAAAACGAAAAGTCTGAA";
-	std::string fragment = "CGA";
-
-	std::cout << "chain: " << chain << std::endl;
-	std::cout << "fragment: " << fragment << std::endl;
-	std::cout << chain.find(fragment, 1);
-
-	std::vector<std::string> sub_chains = make_sub_chains(chain, fragment, 8);
-	print(sub_chains);
-
-
-	std::vector<int> indexes;
-	find(4, sub_chains, fragment, indexes);
-	print(indexes);
-
-	print(parallel_search(chain, fragment));
-
-}
-
 int main() {
-
-	int N = 100;
-	int n = 3;
+	
+	int N;
+	
+	std::cout << "eneter DNA length" << std::endl;
+	std::cin >> N;
 
 	std::string chain = generate_dna(N);
-	std::string fragment = generate_dna(n);
-	std::cout << "chain: " << chain << std::endl;
-	std::cout << "fragment: " << fragment << std::endl;
+	
+	std::cout << "DNA chain: " << chain << std::endl;
 
+	std::cout << "eneter DNA fragment" << std::endl;
+	std::string fragment;
+	std::cin >> fragment;
+
+
+
+	std::cout << "entries: ";
 	print(parallel_search(chain, fragment));
 
-	//test();
+	system("pause");
 
 	return 0;
 }
